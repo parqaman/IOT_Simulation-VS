@@ -1,0 +1,26 @@
+version: '3'
+networks:
+    udp_networks:
+      ipam: #ip address management
+        config:
+          - subnet: 172.30.0.0/24
+            gateway: 172.30.0.1
+
+services:
+  iot_gateway:
+    build: ./IOT_gateway
+    container_name: "iot_gateway"
+    tty: true
+    networks:
+      udp_networks:
+        ipv4_address: 172.30.0.2
+    depends_on:
+      - sensor_devices
+
+  sensor_devices:
+    build: ./UDP_client
+    container_name: "sensor_devices"
+    tty: true
+    networks:
+      udp_networks:
+        ipv4_address: 172.30.0.3
