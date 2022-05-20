@@ -14,12 +14,9 @@ services:
     networks:
       udp_networks:
         ipv4_address: 172.30.0.2
-    depends_on:
-      - sensor_devices
 
   sensor_devices:
     build: ./UDP_client
-    container_name: "sensor_devices"
     tty: true
     networks:
       udp_networks:

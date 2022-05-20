@@ -1,38 +1,66 @@
 #!/usr/bin/python3
 
+from random import randint
 import socket
+import threading
+
 from sensor import Sensor
 
 # Set the IP and port
-IP = '172.30.0.3'
-PORT = 8080
+DEVICE_IP = '172.30.0.3'
 
-# Create the socket
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+GATEWAY_IP = '172.30.0.2'
+GATEWAY_PORT = 8080
 
-# Bind socket with the ip and port
-client_socket.bind((IP, PORT))
+def notify_server(port, my_sock):
+  my_sock.sendto(str(port).encode('utf-8'), (GATEWAY_IP, GATEWAY_PORT))
+  data, address = my_sock.recvfrom(1024)
+  decoded = data.decode()
+  if(decoded == 'ACK'):
+    return 0
+  else:
+    return -1
 
-sensor_devices = {
-  'Temperature': Sensor(1),
-  'Humidity': Sensor(2),
-  'Luminuous Intensity': Sensor(3)
-  }
+def create_client_thread(the_type: int):
+  # Look for open port and bind it
+  client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  client_socket.bind((DEVICE_IP, 0))
+  stat = notify_server(client_socket.getsockname()[1], client_socket)
 
-try:
-  while True:
-    # Waiting for data request from gateway
-    data, address = client_socket.recvfrom(1024)
-    decoded = data.decode()
+  # if successfully notified gateway about the server
+  if stat == 0:
+    try:
+      sensor_device = Sensor(the_type)
+      while True:
+        # Waiting for data request from gateway
+        data, address = client_socket.recvfrom(1024)
 
-    # Preparing reply message
-    the_message = str(sensor_devices[decoded].get_sensor_value())
+        if(address[0] == '172.30.0.2' and address[1] == 8080 and data.decode() == 'Data Request'):
+          # Preparing reply message
+          the_message = sensor_device.get_sensor_type() + ': ' + str(sensor_device.get_sensor_value()) + sensor_device.get_sensor_unit()
+          # Encode the message and send it to the gateway
+          client_socket.sendto(the_message.encode(), (address[0], address[1]))
+        
+    finally:
+        print('Closing socket')
 
-    # Encode the message and send it to the gateway
-    client_socket.sendto(the_message.encode('utf-8'), (address[0], address[1]))
-    
-finally:
-    print('Closing socket')
+        # Close the socket after succesfully sending the message
+        client_socket.close()
+        return 0
+  else:
+    return -1
 
-    # Close the socket after succesfully sending the message
-    client_socket.close()
+
+if __name__ == '__main__':
+  counter = 0
+  num_of_clients = 3
+  myThreads = []
+  while counter < num_of_clients:
+    device_type = (counter % 3) + 1 # only 3 types of sensors (temp=1, hum=2, lum=3)
+    t1 = threading.Thread(target=create_client_thread, args=(device_type,))
+    t1.start()
+    myThreads.append(t1)
+    counter += 1
+  
+  for theThread in myThreads:
+    theThread.join()
