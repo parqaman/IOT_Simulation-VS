@@ -14,10 +14,24 @@ services:
     networks:
       udp_networks:
         ipv4_address: 172.30.0.2
+    depends_on:
+      - sensor_devices
+      - cloud_server
 
   sensor_devices:
+    container_name: "sensor_devices"
     build: ./UDP_client
     tty: true
     networks:
       udp_networks:
         ipv4_address: 172.30.0.3
+
+  cloud_server:
+    build: ./Cloud_server
+    container_name: "cloud_server"
+    tty: true
+    ports:
+      - 127.0.0.1:8085:50000
+    networks:
+      udp_networks:
+        ipv4_address: 172.30.0.4

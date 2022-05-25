@@ -3,6 +3,7 @@
 from random import randint
 import socket
 import time
+import requests
 
 DEVICE_PORT_LIST = []
 
@@ -10,6 +11,8 @@ DEVICE_IP = '172.30.0.3'
 
 IP = '172.30.0.2'
 PORT = 8080
+SERVER_IP = 'http://172.30.0.4'
+SERVER_PORT = 50000
 
 # Create and bind the socket
 gateway_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -32,11 +35,14 @@ while True:
     gateway_socket.sendto("Data Request".encode(), (DEVICE_IP, int(chosen_port)))
 
     # Waiting for data from sensor device 
-    data, address = gateway_socket.recvfrom(1024)
+    incoming_data, address = gateway_socket.recvfrom(1024)
     timestamp2 = time.time()
 
     RTT = timestamp2 - timestamp1
-    print('Data from port:', address[1])
-    print('RTT: ' + str(round(RTT*1000, 3)) + ' ms')
-    print(data.decode() + '\n')
+    print('Incoming data from port:', address[1])
+    print('RTT: ' + str(round(RTT*1000, 3)) + ' ms\n')
+
+    # Sending payload to cloud server through HTTP POST
+    req = requests.post(SERVER_IP+":"+str(SERVER_PORT), data=incoming_data)
+    print(req.text)
     time.sleep(2)
