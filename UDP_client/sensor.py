@@ -5,7 +5,7 @@ class Sensor:
         if _type == 1:
             self.sensor_type = "T"
             self.sensor_value = random.randint(-10, 40)
-            self.einheit = "° C"
+            self.einheit = "Celc"
         elif _type == 2:
             self.sensor_type = "H"
             self.sensor_value = random.randint(50, 75)
