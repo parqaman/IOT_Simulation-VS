@@ -43,6 +43,10 @@ while True:
     print('RTT: ' + str(round(RTT*1000, 3)) + ' ms\n')
 
     # Sending payload to cloud server through HTTP POST
+    tcp_timestamp1 = time.time()
     req = requests.post(SERVER_IP+":"+str(SERVER_PORT), data=incoming_data)
-    print(req.text)
+    tcp_timestamp2 = time.time()
+    tcp_RTT = tcp_timestamp2 - tcp_timestamp1
+    print('TCP POST RTT: ' + str(round(tcp_RTT*1000, 3)))
+    print(req.text + '\n')
     time.sleep(2)
