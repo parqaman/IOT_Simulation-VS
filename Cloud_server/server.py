@@ -2,10 +2,25 @@
 
 import socket
 import threading
+import sys
 
 IP = '172.30.0.4'
 PORT = 50000
+DATABASE_IP = '172.30.0.5'
+DATABASE_PORT = 9090
 sensor_data = []
+
+# your gen-py dir
+sys.path.append('gen-py')
+
+# MyDBService files
+from MyDBService import *
+from MyDBService.ttypes import *
+
+# Thrift files
+from thrift.transport import TSocket
+from thrift.transport import TTransport
+from thrift.protocol import TBinaryProtocol
 
 def write_in_html(in_file, in_data):
     write_html = open(in_file, "w")
@@ -19,17 +34,40 @@ def write_in_html(in_file, in_data):
             break
     html_file.close()
 
+def create_thrift_client():
+    # Init thrift connection and protocol handlers
+    tsocket = TSocket.TSocket( DATABASE_IP , DATABASE_PORT)
+    transport = TTransport.TBufferedTransport(tsocket)
+    protocol = TBinaryProtocol.TBinaryProtocol(transport)
+
+    client = MyDBService.Client(protocol)
+
+    return (client, transport)
+
 def request_handler(client_connection):
+    # Init thrift connection and protocol handlers
+    local_client, local_transport = create_thrift_client()
+
     # Getting the client request
     incoming_req = client_connection.recv(1024).decode()
 
-    # Handling the client request
+    # Handling the client request (GET or POST)
     splitted_req = incoming_req.split()
     if(splitted_req[0] == 'POST'):
-        file = splitted_req[1].split('?')[0]
-        file = file.replace('/', '')
+        # Extracting file name and data
+        filename = splitted_req[1].split('?')[0]
+        filename = filename.replace('/', '')
         data = splitted_req[1].split('?')[1].split('=')[1]
-        write_in_html(file, data)
+        sensor_type = data.split(':')[0]
+        
+        # Executing RPC for DB
+        local_transport.open()
+        local_client.insert_data(data, sensor_type)
+        local_transport.close()
+        
+        # Writing new entry in the HTML file
+        write_in_html(filename, data)
+
         response = 'HTTP/1.1 200 OK\r\nContent-type: text/html\r\nContent-length:{}\r\n\r\n'.format(len(data)) + data
         client_connection.sendall(response.encode())
         
@@ -37,9 +75,14 @@ def request_handler(client_connection):
         the_file = open('index.html', 'r')
         content = the_file.read()
         the_file.close()
+        rows = "*"
+        table_name = "T"
+        local_transport.open()
+        # Record as string seperated with ';', each entry (id, value) e.g. (1, -10)
+        get_database = local_client.read_data(rows, table_name)
+        local_transport.close()
         response = 'HTTP/1.1 200 OK\r\nContent-type: text/html\r\nContent-length:{}\r\n\r\n'.format(len(content)) + content
         client_connection.sendall(response.encode())
-    #client_connection.close()
 
 
 if __name__ == '__main__':
@@ -51,10 +94,17 @@ if __name__ == '__main__':
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((IP, PORT))
     server_socket.listen(1)
-    print('Server started...')
-
+    print('Cloud service started...')
+    # Set client to our DB
+    client, transport = create_thrift_client()
+    transport.open()
+    client.create_table('T')
+    client.create_table('H')
+    client.create_table('LI')
+    transport.close()
+    print("All tables created")
     while True:
         client_connection, client_address = server_socket.accept()
-        # start thread with client connection and addr as param
+        # start thread with client connection as param
         t1 = threading.Thread(target=request_handler, args=(client_connection,))
         t1.start()

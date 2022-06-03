@@ -49,7 +49,6 @@ if __name__ == '__main__':
 
         gateway_socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         gateway_socket_tcp.connect((SERVER_IP, SERVER_PORT))
-        print("Server connected")
 
         #Sending payload to cloud server through HTTP POST
         tcp_timestamp1 = time.time()
