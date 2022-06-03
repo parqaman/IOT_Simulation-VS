@@ -35,3 +35,13 @@ services:
     networks:
       udp_networks:
         ipv4_address: 172.30.0.4
+    depends_on:
+      - my_database
+    
+  my_database:
+    build: ./Cloud_server/Database
+    container_name: "my_database"
+    tty: true
+    networks:
+      udp_networks:
+        ipv4_address: 172.30.0.5
