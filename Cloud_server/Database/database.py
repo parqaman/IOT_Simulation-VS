@@ -33,15 +33,15 @@ class DB:
         data_in_string = ';'.join([str(item) for item in datas])
         return data_in_string
 
-    def insert_data(self, in_data, table_name):
+    def insert_data(self, in_data):
         unit = in_data.split(':') # 'T:10-Celc' -> {T, 10-Celc}
-        value = unit[1].split('-')[0] # splitted_input[1] = '10-Celc' -> {10, Celc}
+        value = unit[1].split('-')[0] # splitted_input[1] = '10-Celc'.split('- ') -> {10, Celc}
         if(unit[0] == 'T'):
-            c.execute("INSERT INTO {} VALUES (NULL, {})".format(table_name, value))
+            c.execute("INSERT INTO {} VALUES (NULL, {})".format(unit[0], value))
         elif(unit[0] == 'H'):
-            c.execute("INSERT INTO {} VALUES (NULL, {})".format(table_name, value))
+            c.execute("INSERT INTO {} VALUES (NULL, {})".format(unit[0], value))
         elif(unit[0] == 'LI'):
-            c.execute("INSERT INTO {} VALUES (NULL, {})".format(table_name, value))
+            c.execute("INSERT INTO {} VALUES (NULL, {})".format(unit[0], value))
         conn.commit()
 
 if __name__ == '__main__':

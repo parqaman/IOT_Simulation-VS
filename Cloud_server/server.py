@@ -58,11 +58,10 @@ def request_handler(client_connection):
         filename = splitted_req[1].split('?')[0]
         filename = filename.replace('/', '')
         data = splitted_req[1].split('?')[1].split('=')[1]
-        sensor_type = data.split(':')[0]
-        
+                
         # Executing RPC for DB
         local_transport.open()
-        local_client.insert_data(data, sensor_type)
+        local_client.insert_data(data)
         local_transport.close()
         
         # Writing new entry in the HTML file
