@@ -36,11 +36,10 @@ class Iface(object):
         """
         pass
 
-    def insert_data(self, in_data, table_name):
+    def insert_data(self, in_data):
         """
         Parameters:
          - in_data
-         - table_name
 
         """
         pass
@@ -117,21 +116,19 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "read_data failed: unknown result")
 
-    def insert_data(self, in_data, table_name):
+    def insert_data(self, in_data):
         """
         Parameters:
          - in_data
-         - table_name
 
         """
-        self.send_insert_data(in_data, table_name)
+        self.send_insert_data(in_data)
         self.recv_insert_data()
 
-    def send_insert_data(self, in_data, table_name):
+    def send_insert_data(self, in_data):
         self._oprot.writeMessageBegin('insert_data', TMessageType.CALL, self._seqid)
         args = insert_data_args()
         args.in_data = in_data
-        args.table_name = table_name
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -231,7 +228,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = insert_data_result()
         try:
-            self._handler.insert_data(args.in_data, args.table_name)
+            self._handler.insert_data(args.in_data)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -495,14 +492,12 @@ class insert_data_args(object):
     """
     Attributes:
      - in_data
-     - table_name
 
     """
 
 
-    def __init__(self, in_data=None, table_name=None,):
+    def __init__(self, in_data=None,):
         self.in_data = in_data
-        self.table_name = table_name
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -518,11 +513,6 @@ class insert_data_args(object):
                     self.in_data = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.table_name = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -536,10 +526,6 @@ class insert_data_args(object):
         if self.in_data is not None:
             oprot.writeFieldBegin('in_data', TType.STRING, 1)
             oprot.writeString(self.in_data.encode('utf-8') if sys.version_info[0] == 2 else self.in_data)
-            oprot.writeFieldEnd()
-        if self.table_name is not None:
-            oprot.writeFieldBegin('table_name', TType.STRING, 2)
-            oprot.writeString(self.table_name.encode('utf-8') if sys.version_info[0] == 2 else self.table_name)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -561,7 +547,6 @@ all_structs.append(insert_data_args)
 insert_data_args.thrift_spec = (
     None,  # 0
     (1, TType.STRING, 'in_data', 'UTF8', None, ),  # 1
-    (2, TType.STRING, 'table_name', 'UTF8', None, ),  # 2
 )
 
 
