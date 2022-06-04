@@ -36,7 +36,7 @@ def create_client_thread(the_type: int):
 
         if(address[0] == '172.30.0.2' and address[1] == 8080 and data.decode() == 'Data Request'):
           # Preparing reply message
-          the_message = sensor_device.get_sensor_type() + ':' + str(sensor_device.get_sensor_value()) + '-' + sensor_device.get_sensor_unit()
+          the_message = sensor_device.get_sensor_type() + ':' + str(sensor_device.get_sensor_value()) + '_' + sensor_device.get_sensor_unit()
           # Encode the message and send it to the gateway
           client_socket.sendto(the_message.encode(), (address[0], address[1]))
         

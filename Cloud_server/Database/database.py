@@ -35,7 +35,7 @@ class DB:
 
     def insert_data(self, in_data):
         unit = in_data.split(':') # 'T:10-Celc' -> {T, 10-Celc}
-        value = unit[1].split('-')[0] # splitted_input[1] = '10-Celc'.split('- ') -> {10, Celc}
+        value = unit[1].split('_')[0] # splitted_input[1] = '10-Celc'.split('_') -> {10, Celc}
         if(unit[0] == 'T'):
             c.execute("INSERT INTO {} VALUES (NULL, {})".format(unit[0], value))
         elif(unit[0] == 'H'):
