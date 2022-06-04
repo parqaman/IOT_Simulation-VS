@@ -15,7 +15,6 @@ services:
       udp_networks:
         ipv4_address: 172.30.0.2
     depends_on:
-      - sensor_devices
       - cloud_server
 
   sensor_devices:
@@ -25,6 +24,8 @@ services:
     networks:
       udp_networks:
         ipv4_address: 172.30.0.3
+    depends_on:
+      - iot_gateway
 
   cloud_server:
     build: ./Cloud_server
