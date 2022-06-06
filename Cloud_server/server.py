@@ -25,10 +25,10 @@ from thrift.protocol import TBinaryProtocol
 def write_in_html(in_file, in_data):
     write_html = open(in_file, "w")
     for i in range(len(html_string)):
-        if html_string[i] == '        <script>\n':
+        if html_string[i] == '        <h1>Sensor Devices Values</h1>\n':
             sensor_data.append(in_data)
             data_as_html = '<p>' + in_data + '</p>\n'
-            html_string.insert(i, data_as_html)
+            html_string.insert(i+1, data_as_html)
             for text in html_string:
                 write_html.write(text)
             break
