@@ -40,8 +40,8 @@ if __name__ == '__main__':
         timestamp2 = time.time()
 
         RTT = timestamp2 - timestamp1
-        print('Incoming UDP package from port:', address[1])
-        print('RTT: ' + str(round(RTT*1000, 3)) + ' ms')
+        #print('Incoming UDP package from port:', address[1])
+        print('UDP RTT: ' + str(round(RTT*1000, 3)) + ' ms')
 
         #TCP (HTTP)
         #building http request header
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         tcp_timestamp2 = time.time()
         tcp_RTT = tcp_timestamp2 - tcp_timestamp1
         print('TCP POST RTT: ' + str(round(tcp_RTT*1000, 3)))
-        print(server_response + '\n')
+        #print(server_response + '\n')
 
         gateway_socket_tcp.close()
 

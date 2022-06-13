@@ -74,12 +74,14 @@ def request_handler(client_connection):
         the_file = open('index.html', 'r')
         content = the_file.read()
         the_file.close()
-        rows = "*"
-        table_name = "T"
+
         local_transport.open()
         # Record as string seperated with ';', each entry (id, value) e.g. (1, -10)
-        get_database = local_client.read_data(rows, table_name)
+        get_database = local_client.read_data('*', 'T')
         local_transport.close()
+        listRes = list(get_database.split(";"))
+        print('Temperature:', listRes)
+        
         response = 'HTTP/1.1 200 OK\r\nContent-type: text/html\r\nContent-length:{}\r\n\r\n'.format(len(content)) + content
         client_connection.sendall(response.encode())
 
