@@ -62,7 +62,6 @@ def request_handler(client_connection):
         # Executing RPC for DB
         local_transport.open()
         local_client.create(data)
-        # Record as string seperated with ';', each entry (id, value) e.g. (1, -10)
         get_database = local_client.read()
         local_transport.close()
         print('Temperature:', get_database, '\n')
