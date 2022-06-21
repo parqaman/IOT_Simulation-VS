@@ -45,11 +45,11 @@ def create_thrift_client():
     return (client, transport)
 
 def request_handler(client_connection):
-    # Init thrift connection and protocol handlers
-    local_client, local_transport = create_thrift_client()
-
     # Getting the client request
     incoming_req = client_connection.recv(1024).decode()
+
+    # Init thrift connection and protocol handlers
+    local_client, local_transport = create_thrift_client()
 
     # Handling the client request (GET or POST)
     splitted_req = incoming_req.split()
@@ -61,9 +61,12 @@ def request_handler(client_connection):
                 
         # Executing RPC for DB
         local_transport.open()
-        local_client.insert_data(data)
+        local_client.create(data)
+        # Record as string seperated with ';', each entry (id, value) e.g. (1, -10)
+        get_database = local_client.read()
         local_transport.close()
-        
+        print('Temperature:', get_database, '\n')
+
         # Writing new entry in the HTML file
         write_in_html(filename, data)
 
@@ -73,15 +76,7 @@ def request_handler(client_connection):
     elif(splitted_req[0] == 'GET'):
         the_file = open('index.html', 'r')
         content = the_file.read()
-        the_file.close()
-
-        local_transport.open()
-        # Record as string seperated with ';', each entry (id, value) e.g. (1, -10)
-        get_database = local_client.read_data('*', 'T')
-        local_transport.close()
-        listRes = list(get_database.split(";"))
-        print('Temperature:', listRes)
-        
+        the_file.close()        
         response = 'HTTP/1.1 200 OK\r\nContent-type: text/html\r\nContent-length:{}\r\n\r\n'.format(len(content)) + content
         client_connection.sendall(response.encode())
 
@@ -96,14 +91,6 @@ if __name__ == '__main__':
     server_socket.bind((IP, PORT))
     server_socket.listen(1)
     print('Cloud service started...')
-    # Set client to our DB
-    client, transport = create_thrift_client()
-    transport.open()
-    client.create_table('T')
-    client.create_table('H')
-    client.create_table('LI')
-    transport.close()
-    print("All tables created")
     while True:
         client_connection, client_address = server_socket.accept()
         # start thread with client connection as param

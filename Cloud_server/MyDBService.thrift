@@ -1,11 +1,11 @@
 namespace py MyDBService
 
 service MyDBService{
-    void create_table(1:string table_name)
+    void create(1:string in_data)
      
-    string read_data(1:string rows, 2:string table_name)
+    list<string> read()
 
-    void insert_data(1:string in_data)
+    void update(1:i32 index, 2:string new_entry)
 
-    void delete_data(1:string table_name, 2:i32 id)
+    void delete(1:string table_name, 2:i32 id)
 }
