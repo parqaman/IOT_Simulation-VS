@@ -46,3 +46,23 @@ services:
     networks:
       udp_networks:
         ipv4_address: 172.30.0.5
+
+  mqtt_adapter:
+    container_name: "mqtt_adapter"
+    build: ./MQTT_client/MQTT_subs
+    tty: true
+    networks:
+      udp_networks:
+        ipv4_address: 172.30.0.6
+    depends_on:
+    - iot_gateway
+
+  mqtt_sensor_devices:
+    container_name: "mqtt_sensor_devices"
+    build: ./MQTT_client/MQTT_pub
+    tty: true
+    networks:
+      udp_networks:
+        ipv4_address: 172.30.0.7
+    depends_on:
+      - iot_gateway
