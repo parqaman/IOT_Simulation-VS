@@ -4,9 +4,9 @@ from random import randint
 import socket
 import time
 
-DEVICE_PORT_LIST = []
-
-DEVICE_IP = '172.30.0.3'
+#DEVICE_PORT_LIST = []
+DEVICE_ADDR_LIST = []
+#DEVICE_IP = '172.30.0.3'
 
 IP = '172.30.0.2'
 PORT = 8080
@@ -20,20 +20,23 @@ if __name__ == '__main__':
     print("Gateway started")
 
     # Wait for all sensor devices to report their ports
-    num_of_sensors = 3
-    while len(DEVICE_PORT_LIST) < num_of_sensors:
+    num_of_sensors = 4
+    while len(DEVICE_ADDR_LIST) < num_of_sensors:
         # Waiting for port data from device 
         data, address = gateway_socket.recvfrom(1024)
-        DEVICE_PORT_LIST.append(data.decode())
+        print('getting notif from', address)
+        DEVICE_ADDR_LIST.append(address)
+        #DEVICE_PORT_LIST.append(data.decode())
         gateway_socket.sendto('ACK'.encode(), (address[0], address[1]))
         
     # Requesting data
     while True:
-        chosen_port = DEVICE_PORT_LIST[randint(0, len(DEVICE_PORT_LIST) - 1)]
+        chosen_addr = DEVICE_ADDR_LIST[randint(0, len(DEVICE_ADDR_LIST) - 1)]
+        print('chosen addr:', chosen_addr)
 
         # Ask for data from the chosen sensor device
         timestamp1 = time.time()
-        gateway_socket.sendto("Data Request".encode(), (DEVICE_IP, int(chosen_port)))
+        gateway_socket.sendto("Data Request".encode(), (chosen_addr[0], int(chosen_addr[1])))
 
         # Waiting for data from sensor device 
         incoming_data, address = gateway_socket.recvfrom(1024)
