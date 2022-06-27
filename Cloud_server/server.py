@@ -3,13 +3,14 @@
 import socket
 import threading
 import sys
-
+import time
+from threading import Lock
 IP = '172.30.0.4'
 PORT = 50000
 DATABASE_IP = '172.30.0.5'
 DATABASE_PORT = 9090
 sensor_data = []
-
+mutex = Lock()
 # your gen-py dir
 sys.path.append('gen-py')
 
@@ -23,6 +24,7 @@ from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
 def write_in_html(in_file, in_data):
+    mutex.acquire()
     write_html = open(in_file, "w")
     for i in range(len(html_string)):
         if html_string[i] == '        <h1>Sensor Devices Values</h1>\n':
@@ -33,6 +35,7 @@ def write_in_html(in_file, in_data):
                 write_html.write(text)
             break
     html_file.close()
+    mutex.release()
 
 def create_thrift_client():
     # Init thrift connection and protocol handlers
@@ -60,14 +63,26 @@ def request_handler(client_connection):
         data = splitted_req[1].split('?')[1].split('=')[1]
                 
         # Executing RPC for DB
+        timestamp1 = time.time()
+        
         local_transport.open()
         local_client.create(data)
+        local_transport.close()
+        
+        timestamp2 = time.time()
+        
+        RTT = timestamp2 - timestamp1
+        print("RPC RTT (Ein Funktionsaufruf): "+ str(round(RTT*1000, 3)) + ' ms')
+
+        local_transport.open()
         get_database = local_client.read()
         local_transport.close()
-        print('Temperature:', get_database, '\n')
+        #print('Temperature:', get_database, '\n')
 
+        t = threading.Thread(target=write_in_html, args=(filename, data))
+        t.start()
         # Writing new entry in the HTML file
-        write_in_html(filename, data)
+        #write_in_html(filename, data) #TODO: write in html in seperate thread and synchronize with mutex
 
         response = 'HTTP/1.1 200 OK\r\nContent-type: text/html\r\nContent-length:{}\r\n\r\n'.format(len(data)) + data
         client_connection.sendall(response.encode())

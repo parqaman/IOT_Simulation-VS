@@ -8,4 +8,6 @@ ADD ./Database/gen-py .
 
 RUN pip3 install thrift
 
+RUN pip3 install times
+
 CMD [ "python3", "server.py" ]
