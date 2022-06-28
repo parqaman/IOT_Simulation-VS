@@ -20,7 +20,7 @@ def create_client_thread(the_type, publisher):
     topic = sensor_device.get_sensor_type()
     qos = 1
     the_message = str(sensor_device.get_sensor_value()) + '_' + sensor_device.get_sensor_unit()
-    publisher.publish(topic, the_message, qos) #publishing message
+    publisher.publish(topic, the_message) #publishing message
     print("Just published '" + sensor_device.get_sensor_type() + ': ' + the_message + "' to Topic '{}'".format(topic))
     time.sleep(3) # Wait 3 secs until next message is being published
 

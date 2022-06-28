@@ -54,6 +54,8 @@ services:
     networks:
       udp_networks:
         ipv4_address: 172.30.0.6
+    depends_on:
+      - iot_gateway
 
   mqtt_sensor_devices:
     container_name: "mqtt_sensor_devices"
