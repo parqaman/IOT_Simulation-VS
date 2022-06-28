@@ -70,10 +70,8 @@ def on_message(client, userdata, message):
     the_topic = message.topic
     content = message.payload.decode("utf-8")
     topic_message_tuple = (the_topic, content)
-    mutex.acquire()
     # appending received message for later udp requests
     published_message.append(topic_message_tuple)
-    mutex.release()
 
     global message_counter
     global t1
