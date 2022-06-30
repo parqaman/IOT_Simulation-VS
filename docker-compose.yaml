@@ -37,15 +37,39 @@ services:
       udp_networks:
         ipv4_address: 172.30.0.4
     depends_on:
-      - my_database
+      - db_coordinator
     
-  my_database:
-    build: ./Cloud_server/Database
-    container_name: "my_database"
+  db_coordinator:
+    build:
+      context: ./Cloud_server/Database
+      target: db_coordinator
+    container_name: "db_coordinator"
     tty: true
     networks:
       udp_networks:
         ipv4_address: 172.30.0.5
+    depends_on:
+      - database2
+
+  database1:
+    build:
+      context: ./Cloud_server/Database
+      target: database1
+    container_name: "database1"
+    tty: true
+    networks:
+      udp_networks:
+        ipv4_address: 172.30.0.8
+
+  database2:
+    build:
+      context: ./Cloud_server/Database
+      target: database2
+    container_name: "database2"
+    tty: true
+    networks:
+      udp_networks:
+        ipv4_address: 172.30.0.9
 
   mqtt_adapter:
     container_name: "mqtt_adapter"
