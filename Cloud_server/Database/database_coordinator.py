@@ -43,11 +43,16 @@ class Coordinator:
     # All DB must be ready, otherwise abort transaction
     def check_all_db(self):
         for thrift_cli, thrift_trans in self.Thrift_Client_Transport:
-            thrift_trans.open()
-            stat = thrift_cli.status_check()
-            thrift_trans.close()
-            if stat != True:
-                return False
+            stat = False
+            try:
+                thrift_trans.open()
+                stat = thrift_cli.status_check()
+                thrift_trans.close()
+                print("All DB is available")
+            except:
+                print("A DB is not available")
+                if stat != True:
+                    return False
         return True
 
     def create(self, in_data):
