@@ -24,10 +24,11 @@ if __name__ == '__main__':
     while len(DEVICE_ADDR_LIST) < num_of_sensors:
         # Waiting for port data from device 
         data, address = gateway_socket.recvfrom(1024)
-        print('getting notif from', address)
         DEVICE_ADDR_LIST.append(address)
         #DEVICE_PORT_LIST.append(data.decode())
         gateway_socket.sendto('ACK'.encode(), (address[0], address[1]))
+
+    print("All devices have notified their address")
         
     # Requesting data
     while True:

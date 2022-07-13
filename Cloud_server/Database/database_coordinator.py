@@ -48,11 +48,11 @@ class Coordinator:
                 thrift_trans.open()
                 stat = thrift_cli.status_check()
                 thrift_trans.close()
-                print("All DB is available")
             except:
                 print("A DB is not available")
                 if stat != True:
                     return False
+        print("All DB is available")
         return True
 
     def create(self, in_data):

@@ -22,7 +22,6 @@ class DB:
 
     def create(self, in_data):
         self.the_list.append(in_data)
-        print("create in DB2")
 
     def read(self):
         return self.the_list
