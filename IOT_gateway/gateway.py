@@ -32,6 +32,7 @@ if __name__ == '__main__':
         
     # Requesting data
     while True:
+        # UDP
         chosen_addr = DEVICE_ADDR_LIST[randint(0, len(DEVICE_ADDR_LIST) - 1)]
         print('chosen addr:', chosen_addr)
 
@@ -44,26 +45,29 @@ if __name__ == '__main__':
         timestamp2 = time.time()
 
         RTT = timestamp2 - timestamp1
-        #print('Incoming UDP package from port:', address[1])
         print('UDP RTT: ' + str(round(RTT*1000, 3)) + ' ms')
 
-        #TCP (HTTP)
-        #building http request header
+        # TCP (HTTP)
+        # HTTP request header
         request_line = 'POST /index.html?data={} HTTP/1.1'.format(incoming_data.decode())
 
+        # Creating TCP socket
         gateway_socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         gateway_socket_tcp.connect((SERVER_IP, SERVER_PORT))
 
-        #Sending payload to cloud server through HTTP POST
+        # Sending payload to cloud server
         tcp_timestamp1 = time.time()
         gateway_socket_tcp.sendall(request_line.encode())
 
+        # Waiting for response from cloud server
         server_response = gateway_socket_tcp.recv(1024).decode()
         tcp_timestamp2 = time.time()
+
         tcp_RTT = tcp_timestamp2 - tcp_timestamp1
         print('TCP POST RTT: ' + str(round(tcp_RTT*1000, 3)))
         #print(server_response + '\n')
 
         gateway_socket_tcp.close()
 
+        # Requesting data from chosen address (device) every 2 seconds
         time.sleep(2)
