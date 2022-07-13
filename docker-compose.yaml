@@ -49,6 +49,7 @@ services:
       udp_networks:
         ipv4_address: 172.30.0.5
     depends_on:
+      - database1
       - database2
 
   database1:
@@ -84,7 +85,6 @@ services:
   mqtt_sensor_devices:
     container_name: "mqtt_sensor_devices"
     build: ./MQTT_client/MQTT_pub
-    tty: true
     networks:
       udp_networks:
         ipv4_address: 172.30.0.7
